@@ -1,5 +1,6 @@
 import {
   Arg,
+  Ctx,
   Field,
   InputType,
   Int,
@@ -9,6 +10,7 @@ import {
 } from "type-graphql";
 import axios from "axios";
 import { User } from "../entity/User";
+import { Context } from "vm";
 
 @InputType()
 class UserInput {
@@ -46,7 +48,8 @@ class UserInput {
 export class UserResolver {
   @Mutation(() => User, { nullable: true })
   async getUser(
-    @Arg("username", () => String) username: string
+    @Arg("username", () => String) username: string,
+    @Ctx() context: Context
   ): Promise<User> | null {
     try {
       const response = await axios.get(
@@ -85,7 +88,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteMostSearched(): Promise<boolean> {
+  async deleteMostSearched(@Ctx() context: Context): Promise<boolean> {
     await User.createQueryBuilder()
       .update(User)
       .set({ searchedForCounter: 0 })
@@ -95,8 +98,10 @@ export class UserResolver {
 
   @Query(() => [User], { nullable: true })
   async mostSearched(
-    @Arg("limit", () => Int) limit: number
+    @Arg("limit", () => Int) limit: number,
+    @Ctx() context: Context
   ): Promise<User[]> | null {
+    context.logger.info(`Request ID is: ${context.requestId}`);
     return await User.find({
       order: { searchedForCounter: "DESC" },
       take: limit,

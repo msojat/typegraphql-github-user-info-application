@@ -19,7 +19,8 @@
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.0",
     "type-graphql": "^1.0.0",
-    "typeorm": "^0.2.28"
+    "typeorm": "^0.2.28",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.8",
