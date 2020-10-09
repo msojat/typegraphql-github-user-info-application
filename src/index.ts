@@ -8,14 +8,20 @@ import { UserResolver } from "./resolvers/UserResolver";
 
 const main = async () => {
   const app = Express();
-
   await createConnection();
 
   const schema = await buildSchema({
     resolvers: [UserResolver],
   });
 
-  const apolloServer = new ApolloServer({ schema });
+  const apolloServer = new ApolloServer({
+    schema,
+    context: () => {
+      const requestId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+      const context = { requestId };
+      return context;
+    },
+  });
 
   apolloServer.applyMiddleware({ app });
 
