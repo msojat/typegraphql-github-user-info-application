@@ -51,11 +51,28 @@ export class UserResolver {
     @Arg("username", () => String) username: string,
     @Ctx() context: Context
   ): Promise<User> | null {
+    context.logger.info(
+      `${this.createLogMessage(
+        context.requestId,
+        "getUser"
+      )} Called with args: { username: ${username} }`
+    );
     try {
+      context.logger.debug(
+        `${this.createLogMessage(
+          context.requestId,
+          "getUser"
+        )} sending request to <https://api.github.com/users/${username}>`
+      );
       const response = await axios.get(
         `https://api.github.com/users/${username}`
       );
-      response.data;
+      context.logger.debug(
+        `${this.createLogMessage(
+          context.requestId,
+          "getUser"
+        )} Request to <https://api.github.com/users/${username}> completed without error`
+      );
       let userData = new UserInput(
         response.data.login,
         response.data.email,
@@ -63,7 +80,19 @@ export class UserResolver {
         response.data.followers,
         response.data.following
       );
+      context.logger.debug(
+        `${this.createLogMessage(
+          context.requestId,
+          "getUser"
+        )} Recieved data: ${JSON.stringify(userData)}`
+      );
 
+      context.logger.debug(
+        `${this.createLogMessage(
+          context.requestId,
+          "getUser"
+        )} Selecting user with username: ${username} from DB}`
+      );
       const [users, count] = await User.findAndCount({
         where: { login: username },
       });
@@ -74,21 +103,50 @@ export class UserResolver {
         userData.searchedForCounter = user.searchedForCounter + 1;
         await User.update(user.id, userData);
         user = await User.findOne(user.id);
+        context.logger.debug(
+          `${this.createLogMessage(
+            context.requestId,
+            "getUser"
+          )} Updated user ${username} in DB`
+        );
       } else {
         userData.searchedForCounter = 1;
         user = User.create(userData);
         await user.save();
+        context.logger.debug(
+          `${this.createLogMessage(
+            context.requestId,
+            "getUser"
+          )} Created user ${username} in DB`
+        );
       }
 
+      context.logger.info(
+        `${this.createLogMessage(
+          context.requestId,
+          "getUser"
+        )} Returning user: ${JSON.stringify(user)}`
+      );
       return user;
     } catch (error) {
       console.error(error);
+      context.logger.error(
+        `${this.createLogMessage(
+          context.requestId,
+          "getUser"
+        )} Request to <https://api.github.com/users/${username}> ended with error: ${
+          error.message
+        } stack: ${error.stack}`
+      );
     }
     return null;
   }
 
   @Mutation(() => Boolean)
   async deleteMostSearched(@Ctx() context: Context): Promise<boolean> {
+    context.logger.info(
+      `${this.createLogMessage(context.requestId, "deleteMostSearched")} called`
+    );
     await User.createQueryBuilder()
       .update(User)
       .set({ searchedForCounter: 0 })
@@ -101,10 +159,26 @@ export class UserResolver {
     @Arg("limit", () => Int) limit: number,
     @Ctx() context: Context
   ): Promise<User[]> | null {
-    context.logger.info(`Request ID is: ${context.requestId}`);
-    return await User.find({
+    context.logger.info(
+      `${this.createLogMessage(
+        context.requestId,
+        "mostSearched"
+      )} called with args: { limit: ${limit} }`
+    );
+    const users: User[] = await User.find({
       order: { searchedForCounter: "DESC" },
       take: limit,
     });
+    context.logger.info(
+      `${this.createLogMessage(
+        context.requestId,
+        "mostSearched"
+      )} returning: ${JSON.stringify(users)}`
+    );
+    return users;
+  }
+
+  createLogMessage(requestId: number, functionName: string): string {
+    return `${new Date().toISOString()} [${requestId}] ${functionName} |`;
   }
 }
