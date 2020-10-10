@@ -13,6 +13,8 @@ const main = async () => {
     transports: [
       new winston.transports.File({
         filename: "./logs/GitGraphQL.log",
+        maxsize: 1024 * 1024,
+        maxFiles: 3,
       }),
     ],
   };
