@@ -19,3 +19,18 @@ The application is built using TypeGraphQL running on top of express server. The
 ### Database
 
 Since this is small application ment to run on small scale the database choice is SQLite because of it's simplicity. In case the application would be run on bigger scale, another database should be used.
+
+### Logs
+
+Logs are saved to files named GitGraphQL*.log (* in name represents generated number added to new files) in the subdirectory "logs". Files are limited to size of 1MB and only last 3 files are kept.
+
+#### Log Structure
+
+Logs are structured as level and message. Level represents importance and message is combination of following:
+
+| Time     | [Request ID]                       | Function name           | \|        | Message |
+| -------- | ---------------------------------- | ----------------------- | --------- | ------- |
+| ISO 8601 | Integer generated for each request | Name of called function | Separator | String  |
+
+Example:
+`{"message":"2020-10-11T10:34:45.771Z [664053549663089] mostSearched | called with args: { limit: 5 }","level":"info"}`
