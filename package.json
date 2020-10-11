@@ -1,11 +1,11 @@
 {
-  "name": "nodejs-backend-github-api-application",
+  "name": "typegraphql-github-user-info-application",
   "version": "1.0.0",
   "description": "Simple TypeGraphQL app for accessing Github users",
   "main": "index.js",
   "scripts": {
-    "start": "echo \"Error: start is not specified yet\" && exit 1",
-    "start-dev": "ts-node-dev --respawn src/index.ts",
+    "start": "cd ./dist && node index.js",
+    "start-dev": "cd ./src && ts-node-dev --respawn index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Marko Šojat <markosojat1@gmail.com>",
