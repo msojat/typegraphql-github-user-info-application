@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import { User } from "../entity/User";
 import { Context } from "vm";
+import { createLogMessage } from "../utils/LogUtil";
 
 @InputType()
 class UserInput {
@@ -52,26 +53,20 @@ export class UserResolver {
     @Ctx() context: Context
   ): Promise<User> | null {
     context.logger.info(
-      `${this.createLogMessage(
-        context.requestId,
-        "getUser"
-      )} Called with args: { username: ${username} }`
+      createLogMessage({ requestId: context.requestId, functionName: "getUser", 
+      message: `Called with args: { username: ${username} }`})
     );
     try {
       context.logger.debug(
-        `${this.createLogMessage(
-          context.requestId,
-          "getUser"
-        )} sending request to <https://api.github.com/users/${username}>`
+        createLogMessage({ requestId: context.requestId, functionName: "getUser", 
+        message: `Sending request to <https://api.github.com/users/${username}>`})
       );
       const response = await axios.get(
         `https://api.github.com/users/${username}`
       );
       context.logger.debug(
-        `${this.createLogMessage(
-          context.requestId,
-          "getUser"
-        )} Request to <https://api.github.com/users/${username}> completed without error`
+        createLogMessage({ requestId: context.requestId, functionName: "getUser", 
+        message: `Request to <https://api.github.com/users/${username}> completed without error`})
       );
       let userData = new UserInput(
         response.data.login,
@@ -81,17 +76,13 @@ export class UserResolver {
         response.data.following
       );
       context.logger.debug(
-        `${this.createLogMessage(
-          context.requestId,
-          "getUser"
-        )} Recieved data: ${JSON.stringify(userData)}`
+        createLogMessage({ requestId: context.requestId, functionName: "getUser",
+          message: `Recieved data: ${JSON.stringify(userData)}`})
       );
 
       context.logger.debug(
-        `${this.createLogMessage(
-          context.requestId,
-          "getUser"
-        )} Selecting user with username: ${username} from DB}`
+        createLogMessage({ requestId: context.requestId, functionName: "getUser",
+          message: `Selecting user with username: ${username} from DB`})
       );
       const [users, count] = await User.findAndCount({
         where: { login: username },
@@ -104,39 +95,27 @@ export class UserResolver {
         await User.update(user.id, userData);
         user = await User.findOne(user.id);
         context.logger.debug(
-          `${this.createLogMessage(
-            context.requestId,
-            "getUser"
-          )} Updated user ${username} in DB`
+          createLogMessage({ requestId: context.requestId, functionName: "getUser", message: `Updated user ${username} in DB`})
         );
       } else {
         userData.searchedForCounter = 1;
         user = User.create(userData);
         await user.save();
         context.logger.debug(
-          `${this.createLogMessage(
-            context.requestId,
-            "getUser"
-          )} Created user ${username} in DB`
+          createLogMessage({ requestId: context.requestId, functionName: "getUser", message: `Created user ${username} in DB`})
         );
       }
 
       context.logger.info(
-        `${this.createLogMessage(
-          context.requestId,
-          "getUser"
-        )} Returning user: ${JSON.stringify(user)}`
+        createLogMessage({ requestId: context.requestId, functionName: "getUser", 
+        message: `Returning user: ${JSON.stringify(user)}`})
       );
       return user;
     } catch (error) {
       console.error(error);
       context.logger.error(
-        `${this.createLogMessage(
-          context.requestId,
-          "getUser"
-        )} Request to <https://api.github.com/users/${username}> ended with error: ${
-          error.message
-        } stack: ${error.stack}`
+        createLogMessage({ requestId: context.requestId, functionName: "getUser",
+          message: `Request to <https://api.github.com/users/${username}> ended with error: ${error.message} stack: ${error.stack}`})
       );
     }
     return null;
@@ -145,7 +124,7 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async deleteMostSearched(@Ctx() context: Context): Promise<boolean> {
     context.logger.info(
-      `${this.createLogMessage(context.requestId, "deleteMostSearched")} called`
+      createLogMessage({ requestId: context.requestId, functionName: "deleteMostSearched", message: `called`})
     );
     await User.createQueryBuilder()
       .update(User)
@@ -160,25 +139,15 @@ export class UserResolver {
     @Ctx() context: Context
   ): Promise<User[]> | null {
     context.logger.info(
-      `${this.createLogMessage(
-        context.requestId,
-        "mostSearched"
-      )} called with args: { limit: ${limit} }`
+      createLogMessage({ requestId: context.requestId, functionName: "mostSearched", message: `Called with args: { limit: ${limit} }`})
     );
     const users: User[] = await User.find({
       order: { searchedForCounter: "DESC" },
       take: limit,
     });
     context.logger.info(
-      `${this.createLogMessage(
-        context.requestId,
-        "mostSearched"
-      )} returning: ${JSON.stringify(users)}`
+      createLogMessage({ requestId: context.requestId, functionName: "mostSearched", message: `Returning: ${JSON.stringify(users)}`})
     );
     return users;
-  }
-
-  createLogMessage(requestId: number, functionName: string): string {
-    return `${new Date().toISOString()} [${requestId}] ${functionName} |`;
   }
 }
