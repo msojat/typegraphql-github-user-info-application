@@ -2,13 +2,13 @@
   "type": "sqlite",
   "database": "database.sqlite",
   "synchronize": true,
-  "logging": false,
-  "entities": ["src/entity/**/*.ts"],
-  "migrations": ["src/migration/**/*.ts"],
-  "subscribers": ["src/subscriber/**/*.ts"],
+  "logging": true,
+  "entities": ["entity/**/*.{ts,js}"],
+  "migrations": ["migration/**/*.{ts,js}"],
+  "subscribers": ["subscriber/**/*.{ts,js}"],
   "cli": {
-    "entitiesDir": "src/entity",
-    "migrationsDir": "src/migration",
-    "subscribersDir": "src/subscriber"
+    "entitiesDir": "entity",
+    "migrationsDir": "migration",
+    "subscribersDir": "subscriber"
   }
 }
