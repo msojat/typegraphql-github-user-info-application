@@ -61,6 +61,7 @@ export class UserResolver {
         createLogMessage({ requestId: context.requestId, functionName: "getUser", 
         message: `Sending request to <https://api.github.com/users/${username}>`})
       );
+      // Request data from GitHub API
       const response = await axios.get(
         `https://api.github.com/users/${username}`
       );
@@ -88,7 +89,7 @@ export class UserResolver {
         where: { login: username },
       });
       let user: User;
-      // If user exists in DB
+      // If user exists in DB, update it, else create new
       if (count) {
         user = users[0];
         userData.searchedForCounter = user.searchedForCounter + 1;

@@ -1,6 +1,6 @@
 # TypeGraphQL Github user info application
 
-Simple TypeGraphQL app for accessing Github users.
+Simple TypeGraphQL app for accessing Github users data.
 
 ## Installation
 
@@ -18,11 +18,11 @@ The application is built using TypeGraphQL running on top of express server. The
 
 ### Database
 
-Since this is small application ment to run on small scale the database choice is SQLite because of it's simplicity. In case the application would be run on bigger scale, another database should be used.
+Since this is a small application meant to run on small scale, the database choice is SQLite because of it's simplicity. In case the application is run on a bigger scale, another database should be used.
 
 ### Logs
 
-Logs are saved to files named GitGraphQL*.log (* in name represents generated number added to new files) in the subdirectory "logs". Files are limited to size of 1MB and only last 3 files are kept.
+Logs are saved to files named GitGraphQL*.log (* in name represents generated number added to new files) in the subdirectory "logs". Files are limited to the size of 1MB and only last 3 files are kept.
 
 #### Log Structure
 
